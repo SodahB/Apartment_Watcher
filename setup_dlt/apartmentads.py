@@ -4,11 +4,16 @@ import json
 import logging
 from pathlib import Path
 import os
+import time
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
+PROCESSED_IDS_FILE = 'processed_ids.json'
+
 def load_processed_ids(file_path):
+    #checking if file path exists within the system, loading it if it does
     if os.path.exists(file_path):
         with open(file_path, 'r') as f:
             try:
@@ -16,79 +21,109 @@ def load_processed_ids(file_path):
             except json.JSONDecodeError:
                 logger.error(f"Error reading the file {file_path}. Starting with an empty set.")
                 return set()
+            
+    #returning empty set if it doesn't exist
     else:
         return set()
 
 def save_processed_ids(file_path, processed_ids):
+    #checking if file path exists within the system
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as f:
+
+            #loading the file into a set
+            try:
+                existing_ids = set(json.load(f)) 
+
+            # or into an empty set if the file is corrupted
+            except json.JSONDecodeError:
+                existing_ids = set()
+
+    #if file doesn't exist, create an empty set
+    else:
+        existing_ids = set()
+
+    # Combine existing IDs with the new ones, excluding duplicates
+    all_ids = existing_ids.union(processed_ids)
+
     with open(file_path, 'w') as f:
-        json.dump(list(processed_ids), f)
+        # Convert set to list before saving
+        json.dump(list(all_ids), f)
 
-processed_ids = set()
-
-def _get_ads(url):
-    logger.debug("Fetching ads from URL...")
+def _get_ads(url, max_retries, wait_time):
+    #Fetching ads
+    logger.info("Fetching ads from URL...")
     headers = {'accept': 'application/json'}
-    try:
-        response = requests.get(url, headers=headers)
-        #check status code
-        response.raise_for_status() 
-        logger.debug(f"Successfully fetched data. Status Code: {response.status_code}")
-        
-
+    retries = 0
+    while retries < max_retries:
         try:
-            #making sure response is in json
-            ads = response.json()
-            logger.debug(f"Fetched {len(ads)} ads.")
-            return ads
-        except json.JSONDecodeError:
-            logger.error("Failed to decode JSON from the response.")
-            return []
-        
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Request failed: {e}")
-        return []
+            response = requests.get(url, headers=headers)
+            #check status code
+            response.raise_for_status() 
+            logger.info(f"Successfully fetched data. Status Code: {response.status_code}")
+            
+
+            try:
+                #making sure response is in json
+                ads = response.json()
+                logger.info(f"Fetched {len(ads)} ads.")
+                return ads
+            except json.JSONDecodeError:
+                logger.error("Failed to decode JSON from the response.")
+                return []   
+
+        #handling if request fails, retrying after increasing breaks
+        except requests.exceptions.RequestException as e:
+            retries += 1
+            wait_time += 90
+            logger.error(f"Request failed (attempt {retries}/{max_retries}): {e}")
+            if retries < max_retries:
+                logger.info(f"Retrying in {wait_time} seconds...")
+                time.sleep(wait_time)
+            else:
+                logger.error("Max retries reached. Giving up.")
+                return []
 
 @dlt.resource
 def apartmentsearch():
-    logger.debug("Apartmentsearch started...")
+    logger.info("Apartmentsearch started...")
     url = 'https://bostad.stockholm.se/AllaAnnonser/'
-    logger.debug(url)
 
     all_ads = []
+    processed_ids = load_processed_ids(PROCESSED_IDS_FILE)
 
-    while True:
-        try:
-            response = _get_ads(url)
-            if not response:
-                logger.info("No more results found.")
-                break
-            logger.debug(f"Fetched {len(response)} ads.")
-        except Exception as e:
-            logger.error(f"Error while fetching ads: {e}")
-            break
+    try:
+        # Fetch all ads from the API
+        response = _get_ads(url, max_retries = 5, wait_time = 60)
+        if not response:
+            logger.info("No ads found.")
+            # If no ads are returned, return an empty list.
+            return [] 
 
-        new_ads_found = False
+        logger.info(f"Fetched {len(response)} ads.")
 
         for ad in response:
             ad_id = ad.get("AnnonsId")
             if not ad_id:
                 logger.warning("Ad without ID encountered. Skipping...")
                 continue
-            
+
             if ad_id not in processed_ids:
-                logger.debug(f"New ad found: ID {ad_id}")
+                logger.info(f"New ad found: ID {ad_id}")
                 processed_ids.add(ad_id)
                 all_ads.append(ad)
-                new_ads_found = True
-                print(ad)
             else:
-                logger.debug(f"Duplicate ad skipped: ID {ad_id}")
+                pass
 
-        if not new_ads_found:
-            logger.info("No new ads found in the current batch. Ending search.")
-            break
+    except Exception as e:
+        logger.error(f"Error while fetching ads: {e}")
+    
+    # Save processed IDs to jsonfile
+    save_processed_ids(PROCESSED_IDS_FILE, processed_ids)
 
+    # Return all the ads fetched
     yield all_ads
+
 
 def run_pipeline(table_name):
     try:
@@ -99,7 +134,7 @@ def run_pipeline(table_name):
         )
         
         
-        load_info = pipeline.run(apartmentsearch(), table_name=table_name, overwrite=False)
+        load_info = pipeline.run(apartmentsearch(), table_name=table_name)
         print("Pipeline ran successfully:", load_info)
     except Exception as e:
         print(f"An error occurred while running the pipeline: {e}")
