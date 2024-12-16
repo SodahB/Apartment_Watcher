@@ -16,6 +16,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+    #downloads artifact, if it exists, continues if not
       - name: Download Processed IDs Artifact
         id: download-artifact
         uses: actions/download-artifact@v3
@@ -23,6 +24,14 @@ jobs:
           name: processed_ids
           path: ./processed_ids
         continue-on-error: true
+
+    #checks for existing artifact, creates if it doesn't exist
+      - name: Ensure Processed IDs File Exists
+        run: |
+          mkdir -p ./processed_ids
+          if [ ! -f ./processed_ids/processed_ids.json ]; then
+            echo "[]" > ./processed_ids/processed_ids.json
+          fi
 
 
       - name: Set up Python
@@ -48,8 +57,7 @@ jobs:
 
         run: |
           mkdir -p ./processed_ids
-          cd setup_dlt
-          python apartmentads.py
+          python apartmentads_workflow.py
 
       - name: Upload Updated Processed IDs Artifact
         uses: actions/upload-artifact@v3
