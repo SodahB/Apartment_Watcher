@@ -19,7 +19,7 @@ jobs:
     #downloads artifact, if it exists, continues if not
       - name: Download Processed IDs Artifact
         id: download-artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           name: processed_ids
           path: ./processed_ids
@@ -60,7 +60,7 @@ jobs:
           python apartmentads_workflow.py
 
       - name: Upload Updated Processed IDs Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: processed_ids
           path: ./processed_ids/processed_ids.json
