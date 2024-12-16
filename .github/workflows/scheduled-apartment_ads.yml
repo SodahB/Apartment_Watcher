@@ -29,13 +29,13 @@ jobs:
       # Run the Python script
       - name: Run apartmentads.py script
         env:
-          SNOWFLAKE_USERNAME: ${{ secrets.username }}
-          SNOWFLAKE_PASSWORD: ${{ secrets.password }}
-          SNOWFLAKE_HOST: ${{ secrets.host}}
-          SNOWFLAKE_WAREHOUSE: ${{ secrets.warehouse }}
-          SNOWFLAKE_DATABASE: ${{ secrets.database }}
-          SNOWFLAKE_SCHEMA: ${{ secrets.schema }}
-          SNOWFLAKE_ROLE: ${{ secrets.role }}
+          username: ${{ secrets.username }}
+          password: ${{ secrets.password }}
+          host: ${{ secrets.host}}
+          warehouse: ${{ secrets.warehouse }}
+          database: ${{ secrets.database }}
+          schema: ${{ secrets.schema }}
+          role: ${{ secrets.role }}
         run: |
           cd setup_dlt
           python apartmentads.py
