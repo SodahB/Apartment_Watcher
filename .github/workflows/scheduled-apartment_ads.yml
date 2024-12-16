@@ -29,13 +29,14 @@ jobs:
       # Run the Python script
       - name: Run apartmentads.py script
         env:
-          username: ${{ secrets.username }}
-          password: ${{ secrets.password }}
-          host: ${{ secrets.host}}
-          warehouse: ${{ secrets.warehouse }}
-          database: ${{ secrets.database }}
-          schema: ${{ secrets.schema }}
-          role: ${{ secrets.role }}
+          APARTMENTADS__DESTINATION__SNOWFLAKE__CREDENTIALS__USERNAME: ${{ secrets.username }}
+          APARTMENTADS__DESTINATION__SNOWFLAKE__CREDENTIALS__PASSWORD: ${{ secrets.password }}
+          APARTMENTADS__DESTINATION__SNOWFLAKE__CREDENTIALS__HOST: ${{ secrets.host }}
+          APARTMENTADS__DESTINATION__SNOWFLAKE__CREDENTIALS__DATABASE: ${{ secrets.database }}
+          APARTMENTADS__DESTINATION__SNOWFLAKE__CREDENTIALS__SCHEMA: ${{ secrets.schema }}
+          APARTMENTADS__DESTINATION__SNOWFLAKE__CREDENTIALS__ROLE: ${{ secrets.role }}
+          APARTMENTADS__DESTINATION__SNOWFLAKE__CREDENTIALS__WAREHOUSE: ${{ secrets.warehouse }}
+
         run: |
           cd setup_dlt
           python apartmentads.py
