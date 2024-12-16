@@ -16,6 +16,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: List available artifacts
+        run: |
+          echo "Listing available artifacts:"
+          curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts | jq .
+    
+
     #downloads artifact, if it exists, continues if not
       - name: Download Processed IDs Artifact
         id: download-artifact
@@ -25,13 +32,14 @@ jobs:
           path: ./processed_ids
         continue-on-error: true
 
-    #checks for existing artifact, creates if it doesn't exist
+      #checks for existing artifact, creates if it doesn't exist
       - name: Ensure Processed IDs File Exists
         run: |
           mkdir -p ./processed_ids
           if [ ! -f ./processed_ids/processed_ids.json ]; then
             echo "[]" > ./processed_ids/processed_ids.json
           fi
+          ls -la ./processed_ids
 
 
       - name: Set up Python
