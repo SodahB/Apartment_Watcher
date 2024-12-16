@@ -16,6 +16,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: List Files in Workspace
+        run: |
+          ls -la ./processed_ids
+
     #downloads artifact, if it exists, continues if not
       - name: Download Processed IDs Artifact
         id: download-artifact
