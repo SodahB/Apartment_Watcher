@@ -3,7 +3,7 @@ name: Run python script every day at 00.02
 on:
   schedule:
     # Run every day at 3:00 AM UTC
-    - cron: '1 23 * * *'  
+    - cron: '2 23 * * *'  
 
   workflow_dispatch:
 
@@ -23,7 +23,6 @@ jobs:
           
       - name: Install dependencies
         run: |
-          cd dlt_setup
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
@@ -34,9 +33,9 @@ jobs:
           SNOWFLAKE_PASSWORD: ${{ secrets.password }}
           SNOWFLAKE_HOST: ${{ secrets.host}}
           SNOWFLAKE_WAREHOUSE: ${{ secrets.warehouse }}
-          SNOWFLAKE_DATABASE: ${{ secrets.apartment_watcher }}
+          SNOWFLAKE_DATABASE: ${{ secrets.database }}
           SNOWFLAKE_SCHEMA: ${{ secrets.schema }}
           SNOWFLAKE_ROLE: ${{ secrets.role }}
         run: |
-          cd dlt_setup
+          cd setup_dlt
           python apartmentads.py
