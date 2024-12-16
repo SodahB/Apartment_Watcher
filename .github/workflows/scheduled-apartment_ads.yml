@@ -16,14 +16,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: List Files in Workspace
-        run: |
-          ls -la ./processed_ids
-
     #downloads artifact, if it exists, continues if not
       - name: Download Processed IDs Artifact
         id: download-artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: processed_ids
           path: ./processed_ids
@@ -64,7 +60,7 @@ jobs:
           python apartmentads_workflow.py
 
       - name: Upload Updated Processed IDs Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: processed_ids
           path: ./processed_ids/processed_ids.json
