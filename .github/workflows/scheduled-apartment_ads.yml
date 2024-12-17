@@ -1,8 +1,8 @@
-name: Run python script every day at 00.02
+name: Run apartmentads.py-script every day at 00.02
 
 on:
   schedule:
-    # Run every day at 3:00 AM UTC
+    # Run every day at 0:02 AM Swedish Time
     - cron: '2 23 * * *'  
 
   workflow_dispatch:
@@ -16,9 +16,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      #installing json parser in the runner for the next step
-      - name: Install jq
-        run: sudo apt-get install jq
 
       #obtains workflow id from last successful run of this workflow
       - name: Get Latest Workflow Run ID
@@ -30,7 +27,7 @@ jobs:
           echo "run-id=$latest_run_id" >> $GITHUB_ENV
 
 
-    #downloads artifact usin run_id and github token, if it exists, continues if not
+    #downloads artifact using run_id and github token, if it exists, continues if not
       - name: Download Artifact
         uses: actions/download-artifact@v4
         with:
@@ -38,6 +35,7 @@ jobs:
           path: ./processed_ids
           run-id: ${{ env.run-id }}
           github-token: ${{ secrets.PAT_TOKEN }}
+          continue-on-error: true
 
       #checks for existing artifact, creates if it doesn't exist
       - name: Ensure Processed IDs File Exists
