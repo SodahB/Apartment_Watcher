@@ -9,8 +9,8 @@ import time
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
-PROCESSED_IDS_FILE = 'processed_ids.json'
+#file path to the artifact directory in gihub actions
+PROCESSED_IDS_FILE = './processed_ids/processed_ids.json'
 
 def load_processed_ids(file_path):
     #checking if file path exists within the system, loading it if it does
@@ -78,7 +78,7 @@ def _get_ads(url, max_retries, wait_time):
             wait_time += 90
             logger.error(f"Request failed (attempt {retries}/{max_retries}): {e}")
             if retries < max_retries:
-                logger.info(f"Retrying in {wait_time} seconds...")
+                logger.info(f"Retrying in {wait_time} seconds... (Attempt {retries + 1}/{max_retries})")
                 time.sleep(wait_time)
             else:
                 logger.error("Max retries reached. Giving up.")
@@ -88,9 +88,10 @@ def _get_ads(url, max_retries, wait_time):
 def apartmentsearch():
     logger.info("Apartmentsearch started...")
     url = 'https://bostad.stockholm.se/AllaAnnonser/'
-
+    
     all_ads = []
     processed_ids = load_processed_ids(PROCESSED_IDS_FILE)
+    new_ids = set()
 
     try:
         # Fetch all ads from the API
@@ -111,6 +112,7 @@ def apartmentsearch():
             if ad_id not in processed_ids:
                 logger.info(f"New ad found: ID {ad_id}")
                 processed_ids.add(ad_id)
+                new_ids.add(ad_id)
                 all_ads.append(ad)
             else:
                 pass
@@ -122,7 +124,11 @@ def apartmentsearch():
     save_processed_ids(PROCESSED_IDS_FILE, processed_ids)
 
     # Return all the ads fetched
-    yield all_ads
+    if all_ads:
+        yield all_ads
+    else:
+        logger.info("No new ads to process.")
+        yield []
 
 
 def run_pipeline(table_name):
