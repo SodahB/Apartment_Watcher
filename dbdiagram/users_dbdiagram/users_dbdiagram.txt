@@ -1,0 +1,44 @@
+Table user {
+  id INT [pk, increment]
+  email VARCHAR(255) [not null]
+  min_rent DECIMAL(10, 2) [not null]
+  max_rent DECIMAL(10, 2) [not null]
+  min_rooms INT [not null]
+  max_rooms INT [not null]
+  min_size DECIMAL(10, 2) [not null]
+  max_size DECIMAL(10, 2) [not null]
+  balcony_required BOOLEAN [not null, default: false]
+  any_floor BOOLEAN [not null, default: true]
+  any_floor_except_bottom BOOLEAN [not null, default: false]
+  elevator_required BOOLEAN [not null, default: false]
+  bottom_floor_required BOOLEAN [not null, default: false]
+  bottom_or_elevator_required BOOLEAN [not null, default: false]
+  is_active BOOLEAN [not null, default: true]
+}
+
+
+Table municipality {
+  id INT [pk, increment]
+  name VARCHAR(255) [not null, unique]
+}
+
+
+Table user_municipality {
+  user_id INT [ref: > user.id]
+  municipality_id INT [ref: > municipality.id]
+}
+
+Table user_apartment_type_filters {
+  id INT [pk, increment]
+  user_id INT [ref: > user.id]
+  new_development boolean [not null, default: false]
+  standard boolean [not null, default: false]
+  youth boolean [not null, default: false]
+  student boolean [not null, default: false]
+  senior boolean [not null, default: false]
+  short_term boolean [not null, default: false]
+  youth_friendship boolean [not null, default: false]
+  fast_track boolean [not null, default: false]
+  limited_mobility boolean [not null, default: false]
+  limited_orientation boolean [not null, default: false]
+}

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apartment Selection</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    fieldset {
+      margin-bottom: 20px;
+    }
+    legend {
+      font-weight: bold;
+    }
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+    }
+    .slider-container {
+      margin: 10px 0;
+    }
+    .input-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    select, input[type="number"] {
+      width: 100px;
+      padding: 5px;
+    }
+  </style>
+<script>
+    function toggleMunicipalityCheckboxes(source) {
+      const checkboxes = document.querySelectorAll('input[name="municipality"]');
+      checkboxes.forEach(function(checkbox) {
+        checkbox.checked = source.checked;
+      });
+    }
+  
+    // Function to check if "All" checkbox needs to be deselected
+    function updateAllCheckbox() {
+      const checkboxes = document.querySelectorAll('input[name="municipality"]');
+      const selectAllCheckbox = document.getElementById('select_all_municipalities');
+      
+      // If any checkbox is unchecked, uncheck "All"
+      selectAllCheckbox.checked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+    }
+  
+    // Add event listeners for individual municipality checkboxes
+    document.addEventListener('DOMContentLoaded', function() {
+      const municipalityCheckboxes = document.querySelectorAll('input[name="municipality"]');
+      municipalityCheckboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', updateAllCheckbox);
+      });
+    });
+  </script>
+</head>
+<body>
+  <form>
+    <!-- Email Section -->
+    <fieldset>
+      <legend>Email</legend>
+      <label>
+        <input type="email" name="email" placeholder="Enter your email" required>
+      </label>
+    </fieldset>
+
+    <!-- Rent Range Section -->
+    <fieldset>
+      <legend>Rent Range</legend>
+      <div class="input-container">
+        <label for="min_rent">Min Rent:</label>
+        <input type="number" id="min_rent" name="min_rent" min="0" max="30000" step="500" value="0" required>
+        <label for="max_rent">Max Rent:</label>
+        <input type="number" id="max_rent" name="max_rent" min="0" max="50000" step="500" value="50000" required>
+      </div>
+    </fieldset>
+
+    <!-- Rooms Section -->
+    <fieldset>
+        <legend>Rooms</legend>
+        <div class="input-container">
+          <label for="min_rooms">Min Rooms:</label>
+          <select id="min_rooms" name="min_rooms" required>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+          </select>
+          <label for="max_rooms">Max Rooms:</label>
+          <select id="max_rooms" name="max_rooms" required>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+          </select>
+        </div>
+      </fieldset>
+
+
+    <!-- Size Section -->
+    <fieldset>
+        <legend>Size (m²)</legend>
+        <div class="input-container">
+          <label for="min_size">Min Size:</label>
+          <input type="number" id="min_size" name="min_size" min="0" max="200" step="5" value="0" required>
+          <label for="max_size">Max Size:</label>
+          <input type="number" id="max_size" name="max_size" min="0" max="200" step="5" value="200" required>
+        </div>
+      </fieldset>
+      
+      <!-- Balcony Section -->
+      <fieldset>
+        <legend>Balcony</legend>
+        <label>
+          <input type="checkbox" name="balcony" value="balcony_required"> Balcony required
+        </label>
+      </fieldset>
+
+    <!-- Floor Section -->
+    <fieldset>
+      <legend>Floor</legend>
+      <label>
+        <input type="radio" name="floor" value="any_floor"> Any floor
+      </label><br>
+      <label>
+        <input type="radio" name="floor" value="any_except_bottom"> Any floor except bottom
+      </label>
+    </fieldset>
+
+
+    <!-- Accessibility Section -->
+    <fieldset>
+        <legend>Accessibility</legend>
+        <label>
+            <input type="radio" name="accesibility" value="elevator_required"> Elevator required
+        </label><br>
+        <label>
+            <input type="radio" name="accesibility" value="bottom_floor"> Bottom floor
+          </label><br>
+        <label>
+            <input type="radio" name="accesibility"" value="bottom_or_elevator"> Bottom floor or elevator required
+        </label>
+        </fieldset>
+
+    <!-- Municipality Section -->
+    <fieldset>
+        <legend>Municipality</legend>
+        <label>
+          <input type="checkbox" id="select_all_municipalities" onchange="toggleMunicipalityCheckboxes(this)"> All
+        </label><br>
+        {% for municipality in municipalities %}
+          <label>
+            <input type="checkbox" name="municipality" value="{{ municipality }}"> {{ municipality }}
+          </label><br>
+        {% endfor %}
+      </fieldset>
+
+  
+    <!-- Apartment Types Section -->
+    <fieldset>
+        <legend>Apartment Type</legend>
+        <!-- 'Any' checkbox to select all apartment types -->
+        <label>
+          <input type="checkbox" id="select_all_apartments" onchange="toggleApartmentCheckboxes(this)"> Any
+        </label><br>
+      
+        {% for type in apartment_types %}
+          <label>
+            <input type="checkbox" name="apartment_types" value="{{ type }}" class="apartment-type" onchange="updateAllCheckbox()"> {{ type }}
+          </label><br>
+        {% endfor %}
+      </fieldset>
+  
+      <script>
+        // Function to toggle all apartment type checkboxes based on the "Any" checkbox
+        function toggleApartmentCheckboxes(source) {
+          const checkboxes = document.querySelectorAll('.apartment-type');
+          checkboxes.forEach(function(checkbox) {
+            checkbox.checked = source.checked;
+          });
+        }
+  
+        // Function to update the "Any" checkbox state based on individual selections
+        function updateAllCheckbox() {
+          const checkboxes = document.querySelectorAll('.apartment-type');
+          const selectAllCheckbox = document.getElementById('select_all_apartments');
+          
+          // If all checkboxes are checked, set "Any" checkbox to checked, else unchecked
+          selectAllCheckbox.checked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+        }
+  
+        // Add event listeners to update the "Any" checkbox when a checkbox is checked or unchecked
+        document.addEventListener('DOMContentLoaded', function() {
+          const apartmentCheckboxes = document.querySelectorAll('.apartment-type');
+          apartmentCheckboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('change', updateAllCheckbox);
+          });
+        });
+      </script>
+
+      <!-- Submit Button -->
+      <button type="submit">Submit</button>
+    </form>
+  </body>
+  </html>
