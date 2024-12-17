@@ -74,7 +74,7 @@ jobs:
           python apartmentads_workflow.py
 
       - name: Upload Updated Processed IDs Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: processed_ids
           path: ./processed_ids/processed_ids.json
