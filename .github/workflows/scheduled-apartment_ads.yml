@@ -16,21 +16,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: List available artifacts
-        run: |
-          echo "Listing available artifacts:"
-          curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts | jq .
-    
+      #installing json parser in the runner for the next step
+      - name: Install jq
+        run: sudo apt-get install jq
 
-    #downloads artifact, if it exists, continues if not
-      - name: Download Processed IDs Artifact
-        id: download-artifact
-        uses: actions/download-artifact@v3
+      #obtains workflow id from last successful run of this workflow
+      - name: Get Latest Workflow Run ID
+        id: get-run-id
+        run: |
+          latest_run_id=$(curl -s -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/actions/workflows/scheduled-apartment_ads.yml/runs?status=success&per_page=1" \
+          | jq -r '.workflow_runs[0].id')
+          echo "run-id=$latest_run_id" >> $GITHUB_ENV
+
+    #downloads artifact usin run_id and github token, if it exists, continues if not
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
         with:
           name: processed_ids
           path: ./processed_ids
-        continue-on-error: true
+          run-id: ${{ env.latest_run_id }}
+          github-token: ${{ secrets.PAT_TOKEN }}
 
       #checks for existing artifact, creates if it doesn't exist
       - name: Ensure Processed IDs File Exists
