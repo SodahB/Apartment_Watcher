@@ -29,6 +29,12 @@ jobs:
           | jq -r '.workflow_runs[0].id')
           echo "run-id=$latest_run_id" >> $GITHUB_ENV
 
+      - name: Debug Artifact Name
+        run: |
+          curl -s -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ env.latest_run_id }}/artifacts" | jq
+
+
     #downloads artifact usin run_id and github token, if it exists, continues if not
       - name: Download Artifact
         uses: actions/download-artifact@v4
