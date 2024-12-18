@@ -35,7 +35,7 @@ jobs:
           path: ./processed_ids
           run-id: ${{ env.run-id }}
           github-token: ${{ secrets.PAT_TOKEN }}
-          continue-on-error: true
+        continue-on-error: true
 
       #checks for existing artifact, creates if it doesn't exist
       - name: Ensure Processed IDs File Exists
