@@ -1,4 +1,4 @@
-Table location {
+Table dim_location {
   id integer [pk] 
   municipality string [not null]
   district string [not null]
@@ -8,9 +8,8 @@ Table location {
 
 }
 
-Table apartment_type {
+Table dim_apartment_type {
   id integer [pk]
-  is_new_development boolean [not null]
   is_youth boolean [not null]
   is_student boolean [not null]
   is_senior boolean [not null]
@@ -22,7 +21,7 @@ Table apartment_type {
 
 }
 
-Table apartment {
+Table dim_apartment {
   id integer [pk]
   floor integer 
   rooms integer [not null]
@@ -30,21 +29,24 @@ Table apartment {
   balcony boolean [not null]
   elevator boolean [not null]
   bf_apartment_id integer [not null]
-  apartment_type_id integer [ref: > apartment_type.id]
-  location_id integer [ref: > location.id]
 
 }
 
-Table ad {
+Table dim_ad {
   id integer [pk]
   bf_ad_id integer [not null]
   url string [not null]
-  apartment_count integer [not null]
-  rent integer 
   lease_type string [not null]
   published date [not null]
   deadline date [not null]
-  apartment_id integer [ref: > apartment.id]
 
+}
 
+Table fct_ad {
+  ad_id integer [ref: > dim_ad.id]
+  apartment_id integer [ref: > dim_apartment.id]
+  location_id integer [ref: > dim_location.id]
+  apartment_type_id integer [ref: > dim_apartment_type.id]
+  rent integer 
+  
 }
