@@ -9,3 +9,5 @@ SELECT
     hiss AS elevator,
     l_genhet_id AS bf_apartment_id
 FROM stg_apartment_ads
+WHERE floor IS NOT NULL
+AND floor_area IS NOT NULL 
