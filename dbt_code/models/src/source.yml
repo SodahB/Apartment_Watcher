@@ -1,0 +1,6 @@
+sources:
+  - name: apartment_watcher
+    schema: staging
+    tables:
+      - name: stg_apartment_ads
+        identifier: apartment_ads

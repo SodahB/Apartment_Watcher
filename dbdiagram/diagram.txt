@@ -36,7 +36,6 @@ Table dim_ad {
   id integer [pk]
   bf_ad_id integer [not null]
   url string [not null]
-  apartment_count integer [not null]
   lease_type string [not null]
   published date [not null]
   deadline date [not null]
