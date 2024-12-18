@@ -1,6 +1,7 @@
 WITH stg_apartment_ads AS (SELECT * FROM {{ source('apartment_watcher', 'stg_apartment_ads') }})
 
 SELECT 
+    annons_id AS bf_ad_id,
     ungdom AS is_youth,
     student AS is_student,
     senior AS is_senior,
