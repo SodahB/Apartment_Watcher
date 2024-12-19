@@ -28,6 +28,37 @@ CREATE TABLE municipality (
   name VARCHAR(255) NOT NULL UNIQUE
 );
 
+INSERT INTO municipality (name) 
+VALUES 
+('Botkyrka'), 
+('Danderyd'), 
+('Ekero'), 
+('Haninge'), 
+('Huddinge'), 
+('Håbo'), 
+('Järfälla'), 
+('Lidingö'), 
+('Nacka'), 
+('Norrtälje'), 
+('Nykvarn'), 
+('Nynäshamn'), 
+('Salem'), 
+('Sigtuna'), 
+('Sollentuna'), 
+('Solna'), 
+('Stockholm'), 
+('Strängnäs'), 
+('Sundbyberg'), 
+('Södertälje'), 
+('Tyresö'), 
+('Täby'), 
+('Upplands Väsby'), 
+('Upplands-Bro'), 
+('Vallentuna'), 
+('Värmdö'), 
+('Österåker');
+
+
 -- Create user_municipality table
 CREATE TABLE user_municipality (
   user_id INT,
@@ -42,7 +73,7 @@ CREATE TABLE user_apartment_type_filters (
   id INT AUTOINCREMENT PRIMARY KEY,
   user_id INT,
   new_development BOOLEAN DEFAULT FALSE NOT NULL,
-  standard BOOLEAN DEFAULT FALSE NOT NULL,
+  standard_lease BOOLEAN DEFAULT FALSE NOT NULL,
   youth BOOLEAN DEFAULT FALSE NOT NULL,
   student BOOLEAN DEFAULT FALSE NOT NULL,
   senior BOOLEAN DEFAULT FALSE NOT NULL,
