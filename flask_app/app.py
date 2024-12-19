@@ -1,40 +1,22 @@
-from flask import Flask, render_template, request, redirect
-import snowflake.connector
+from flask import Flask, render_template, request, redirect, flash
+from update_subscription import update_subscription
 from dotenv import load_dotenv
 import os
 
-# Load environment variables
-load_dotenv()
+
 
 app = Flask(__name__)
 
-# Snowflake connection parameters
-username = os.getenv("username")
-password = os.getenv("password")
-host = os.getenv("host")
-warehouse = os.getenv("warehouse")
-role = "USER_ADMIN_ROLE"
-database = "apartment_watcher"
-schema = "USERS"
+load_dotenv()
+secret_key = os.getenv("secret_key")
+app.secret_key = secret_key
 
-# Connect to Snowflake
-def get_sf_connection():
-    conn = snowflake.connector.connect(
-        user=username,
-        password=password,
-        account=host,
-        warehouse=warehouse,
-        database=database,
-        schema=schema,
-        role=role
-    )
-    return conn
 
 # Home page showing subscription form
 @app.route('/')
 def index():
     # Define the municipalities list
-    municipalities = [
+    municipalities= [
         "Botkyrka", "Danderyd", "Ekero", "Haninge", "Huddinge", "Håbo",
         "Järfälla", "Lidingö", "Nacka", "Norrtälje", "Nykvarn", "Nynäshamn",
         "Salem", "Sigtuna", "Sollentuna", "Solna", "Stockholm", "Strängnäs",
@@ -54,39 +36,73 @@ def index():
 # Handle form submission
 @app.route('/subscribe', methods=['POST'])
 def subscribe():
-    # Get form data
-    email = request.form['email']
-    municipalities = request.form.getlist('municipality')
-    accessibility = request.form.getlist('accessibility')
-    balcony = 'yes' in request.form.getlist('balcony')
+    try:
+        #create dictionary for storing values, with some defaults
+        user_preferences = {"any_floor": False, "any_floor_except_bottom": False, "elevator_required" :False,
+    "bottom_floor_required": False, "bottom_or_elevator_required": False}
+        # Get form data for user table
+        user_preferences["email"] = request.form.get('email', '')
+        if not user_preferences["email"]:
+            flash('Email is required.', 'error')
+            return redirect('/')
+        user_preferences["min_rent"] = request.form['min_rent']
+        user_preferences["max_rent"] = request.form['max_rent']
+        user_preferences["min_rooms"] = request.form['min_rooms']
+        user_preferences["max_rooms"] = request.form['max_rooms']
+        user_preferences["min_size"] = request.form['min_size']
+        user_preferences["max_size"] = request.form['max_size']
+        user_preferences["balcony_required"] = 'balcony_required' in request.form.getlist('balcony')
+        accessibility_and_floor = request.form['accessibility_and_floor']
+        user_preferences[accessibility_and_floor] = True
 
-    # Establish Snowflake connection
-    conn = get_sf_connection()
-    cursor = conn.cursor()
+        
+        #define and get form data for filter table
+        user_apartment_types = {
+        'Standard': False,
+        'Youth': False,
+        'Student': False,
+        'New Development': False,
+        'Senior': False,
+        'Short term': False,
+        'Fast Track': False,
+        'Accessibility for Limited Mobility': False,
+        'Accessibility for Limited Orientation': False
+        }
+        
+        selected_apartment_types = request.form.getlist('apartment_types')
+        for type in user_apartment_types:
+            if type in selected_apartment_types:
+                user_apartment_types[type] = True
 
-    # Insert or update user subscription
-    cursor.execute(f"SELECT * FROM user_subscriptions WHERE email = %s", (email,))
-    user = cursor.fetchone()
+        if 'Youth' in selected_apartment_types:
+            user_apartment_types["Youth Friendship"] = True
+        else:
+            user_apartment_types["Youth Friendship"] = False
 
-    if user:
-        # Update existing record
-        cursor.execute("""
-            UPDATE user_subscriptions
-            SET municipalities = %s, accessibility = %s, balcony = %s
-            WHERE email = %s
-        """, (','.join(municipalities), ','.join(accessibility), balcony, email))
-    else:
-        # Insert new record
-        cursor.execute("""
-            INSERT INTO user_subscriptions (email, municipalities, accessibility, balcony)
-            VALUES (%s, %s, %s, %s)
-        """, (email, ','.join(municipalities), ','.join(accessibility), balcony))
+        #define and get form data for municipality table
+        municipality_ids = {
+        "Botkyrka": 1, "Danderyd": 2, "Ekero": 3, "Haninge": 4, "Huddinge": 5, "Håbo": 6,
+        "Järfälla": 7, "Lidingö": 8, "Nacka": 9, "Norrtälje": 10, "Nykvarn": 11, "Nynäshamn": 12, "Salem": 13,
+        "Sigtuna": 14, "Sollentuna": 15, "Solna": 16, "Stockholm": 17, "Strängnäs": 18, "Sundbyberg": 19, "Södertälje": 20,
+        "Tyresö": 21, "Täby": 22, "Upplands Väsby": 23, "Upplands-Bro": 24, "Vallentuna": 25,
+        "Värmdö": 26, "Österåker": 27}
 
-    conn.commit()
-    cursor.close()
-    conn.close()
+        
+        user_municipalities = request.form.getlist('municipality')
+        user_municipalities_ids = []
+        for municipality in user_municipalities:
+            user_municipalities_ids.append(municipality_ids[municipality])
 
-    return redirect('/')
+
+        print("Calling update_subscription...")
+        update_subscription(user_preferences, user_apartment_types, user_municipalities_ids)
+
+        flash('Subscription updated successfully!', 'success')
+        return redirect('/')
+    
+    except Exception as e:
+        print(f"Error occurred in subscribe route: {e}")
+        flash('An error occurred. Please try again.', 'error')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="127.0.0.1", port=5001, debug=True)
