@@ -8,7 +8,7 @@ username = os.getenv("username")
 password = os.getenv("password")
 host = os.getenv("host")
 warehouse = os.getenv("warehouse")
-role = 'USER_ADMIN_ROLE'
+role = 'EMAIL_ADMIN_ROLE'
 database = os.getenv("database")
 schema = 'USERS'
 
