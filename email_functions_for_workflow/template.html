@@ -24,20 +24,14 @@
         h1 {
             color: #007BFF;
         }
-        p {
-            line-height: 1.6;
-        }
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
         }
-        table, th, td {
-            border: 1px solid #ddd;
-        }
         th, td {
+            border: 1px solid #ddd;
             padding: 8px 12px;
-            text-align: left;
         }
         th {
             background-color: #007BFF;
@@ -46,52 +40,35 @@
         td {
             background-color: #f9f9f9;
         }
-        .footer {
-            text-align: center;
-            font-size: 12px;
-            color: #777;
-            margin-top: 20px;
-        }
-        a {
-            color: #007BFF;
-            text-decoration: none;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>New Apartments Listed in the Last 24 Hours</h1>
-        <p>Hello, here is the list of apartments that have been listed in the last 24 hours:</p>
-        
+        <p>New apartments in your search!</p>
         <table>
             <thead>
                 <tr>
-                    <th>Apartment Name</th>
-                    <th>Location</th>
-                    <th>Price</th>
-                    <th>Listing Date</th>
+                    <th>Street Address</th>
+                    <th>Rent</th>
+                    <th>Rooms</th>
+                    <th>Floor</th>
+                    <th>Floor Area (m²)</th>
+                    <th>Municipality</th>
+                    <th>District</th>
+                    <th>Balcony</th>
+                    <th>Special Categories</th>
+                    <th>Accessibility</th>
+                    <th>Lease Type</th>
+                    <th>Date Published</th>
+                    <th>Deadline</th>
                     <th>Details</th>
                 </tr>
             </thead>
             <tbody>
-                <!-- Example row, repeat for each apartment -->
-                <tr>
-                    <td>Luxury Downtown Loft</td>
-                    <td>Downtown, City</td>
-                    <td>$1,500/month</td>
-                    <td>2024-12-16</td>
-                    <td><a href="https://example.com/apartment/1">View Details</a></td>
-                </tr>
-                <!-- End of example row -->
-                <!-- Repeat the above block for each apartment -->
+                {rows}
             </tbody>
         </table>
-
-        <p>If you're interested in any of these apartments, click "View Details" to learn more.</p>
-        
-        <div class="footer">
-            <p>&copy; 2024 Apartment Watcher.</p>
-        </div>
     </div>
 </body>
 </html>

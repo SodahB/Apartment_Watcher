@@ -26,7 +26,7 @@ def index():
     
     # Define the apartment types list
     apartment_types = [
-        'Standard', 'Youth', 'Student', 'New Development', 'Senior', 
+        'Standard', 'Youth', 'Student','Senior', 
         'Short term', 'Fast Track', 'Accessibility for Limited Mobility', 'Accessibility for Limited Orientation'
     ]
     
@@ -61,7 +61,6 @@ def subscribe():
         'Standard': False,
         'Youth': False,
         'Student': False,
-        'New Development': False,
         'Senior': False,
         'Short term': False,
         'Fast Track': False,
