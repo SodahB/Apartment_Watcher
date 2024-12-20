@@ -9,7 +9,7 @@ username = os.getenv("username")
 password = os.getenv("password")
 host = os.getenv("host")
 warehouse = os.getenv("warehouse")
-role = 'USER_ADMIN_ROLE'
+role = 'EMAIL_ADMIN_ROLE'
 database = os.getenv("database")
 schema = 'USERS'
 
@@ -87,7 +87,18 @@ def find_users():
                 #fallback clause
                 else:
                     user_filter_dict['where_clause'] = "2=2"
-                
+
+                #accessibility clause for apartment types
+                if user_filter_dict['limited_mobility']:
+                    user_filter_dict['mobility_condition'] = "atype.is_limited_mobility = TRUE"
+                else:
+                    user_filter_dict['mobility_condition'] = '1=1'
+
+                if user_filter_dict['limited_orientation']:
+                    user_filter_dict['orientation_condition'] = "atype.is_limited_orientation = TRUE"
+                else:
+                    user_filter_dict['orientation_condition'] = '1=1'
+
                 if user_filter_dict['balcony_required']:
                     balcony_condition = f"ap.balcony = TRUE"
                 else:
@@ -146,6 +157,8 @@ def search_for_filtered_ads(conn, email, user_filter_dict):
         balcony_condition = user_filter_dict['balcony_condition']
         apartment_type_condition = user_filter_dict['apartment_type_condition']
         municipality_condition = user_filter_dict['municipality_condition']
+        mobility_condition = user_filter_dict['mobility_condition']
+        orientation_condition = user_filter_dict['orientation_condition']
 
 
         query = """
@@ -163,11 +176,14 @@ def search_for_filtered_ads(conn, email, user_filter_dict):
         AND {where_clause}
         AND {balcony_condition}
         AND {apartment_type_condition}
+        AND {orientation_condition}
+        AND {mobility_condition}
         AND {municipality_condition}
         AND ad.published >= CURRENT_TIMESTAMP - INTERVAL '1 day'
         """
 
-        formatted_query = query.format(where_clause=where_clause, balcony_condition=balcony_condition, apartment_type_condition= apartment_type_condition, municipality_condition = municipality_condition)
+        formatted_query = query.format(where_clause=where_clause, balcony_condition=balcony_condition, apartment_type_condition= apartment_type_condition, \
+mobility_condition= mobility_condition, orientation_condition= orientation_condition, municipality_condition = municipality_condition)
         
         params = (
             user_filter_dict['min_rent'],
@@ -185,7 +201,6 @@ def search_for_filtered_ads(conn, email, user_filter_dict):
         print(f"Error occurred while fetching ads: {e}")
     finally:
         cursor.close()
-
 def compose_filtered_ads(results, email):
     print(email)
     try:
