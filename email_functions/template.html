@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Apartments in the Last 24 Hours</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #007BFF;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+        td {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>New Apartments Listed in the Last 24 Hours</h1>
+        <p>New apartments in your search!</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Street Address</th>
+                    <th>Rent</th>
+                    <th>Rooms</th>
+                    <th>Floor</th>
+                    <th>Floor Area (m²)</th>
+                    <th>Municipality</th>
+                    <th>District</th>
+                    <th>Balcony</th>
+                    <th>Special Categories</th>
+                    <th>Accessibility</th>
+                    <th>Lease Type</th>
+                    <th>Date Published</th>
+                    <th>Deadline</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {rows}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
