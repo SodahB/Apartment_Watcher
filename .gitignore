@@ -155,3 +155,4 @@ cython_debug/
 
 create_users.sql
 secrets.toml
+.DS_Store
