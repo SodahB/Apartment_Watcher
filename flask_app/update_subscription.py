@@ -34,7 +34,7 @@ def get_sf_connection():
 
 
 
-def update_subscription(user_preferences, selected_apartment_types, user_municipalities_ids):
+def update_subscription(user_preferences, user_apartment_types, user_municipalities_ids):
 
 # Establish Snowflake connection
     try:
@@ -49,7 +49,7 @@ def update_subscription(user_preferences, selected_apartment_types, user_municip
         """, (user_preferences['email'],))
         
         user = cursor.fetchone()
-        print(user_preferences,selected_apartment_types, user_municipalities_ids)
+        print(user_preferences,user_apartment_types, user_municipalities_ids)
         if user:
             print("User exists. Proceeding...")
             # Update existing user
@@ -77,7 +77,7 @@ def update_subscription(user_preferences, selected_apartment_types, user_municip
 
                 #fetch existing user's id
                 user_id = user[0]
-                selected_apartment_types['user_id'] = user_id
+                user_apartment_types['user_id'] = user_id
             except Exception as e:
                 print(f"Error updating user table: {e}")
                 raise
@@ -98,7 +98,7 @@ def update_subscription(user_preferences, selected_apartment_types, user_municip
                         limited_mobility = %(Accessibility for Limited Mobility)s, 
                         limited_orientation = %(Accessibility for Limited Orientation)s
                     WHERE user_id = %(user_id)s
-                """, selected_apartment_types)
+                """, user_apartment_types)
             except Exception as e:
                 print(f"Error updating user apartment type filters table: {e}")
                 raise
@@ -154,7 +154,7 @@ def update_subscription(user_preferences, selected_apartment_types, user_municip
 
                 if user_id is None:
                     print("Error: user_id is NULL!")
-                selected_apartment_types['user_id'] = user_id
+                user_apartment_types['user_id'] = user_id
             except Exception as e:
                 print(f"Error updating user table: {e}")
                 raise  # Propagate the error to trigger rollback
@@ -169,7 +169,7 @@ def update_subscription(user_preferences, selected_apartment_types, user_municip
                     )
                     VALUES (%(user_id)s,  %(Standard)s, %(Youth)s, %(Student)s, %(Senior)s, %(Short term)s,
                             %(Youth Friendship)s, %(Fast Track)s, %(Accessibility for Limited Mobility)s, %(Accessibility for Limited Orientation)s)
-                """, selected_apartment_types)
+                """, user_apartment_types)
             except Exception as e:
                 print(f"Error updating user apartment type filters table: {e}")
                 raise
