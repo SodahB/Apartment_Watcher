@@ -34,4 +34,5 @@ jobs:
           warehouse: ${{ secrets.warehouse }}
           APP_PASSWORD: ${{ secrets.app_password }}
         run: |
+          cd email_functions_for_workflow
           python compose_email_workflow.py
