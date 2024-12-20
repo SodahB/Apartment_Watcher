@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, flash
-from .update_subscription import update_subscription
+from update_subscription import update_subscription
 from dotenv import load_dotenv
 import os
 
@@ -27,7 +27,7 @@ def index():
     # Define the apartment types list
     apartment_types = [
         'Standard', 'Youth', 'Student','Senior', 
-        'Short term', 'Fast Track', 'Accessibility for Limited Mobility', 'Accessibility for Limited Orientation'
+        'Short term', 'Fast Track'
     ]
     
     # Pass both lists to the template
@@ -55,7 +55,7 @@ def subscribe():
         accessibility_and_floor = request.form['accessibility_and_floor']
         user_preferences[accessibility_and_floor] = True
 
-        
+
         #define and get form data for filter table
         user_apartment_types = {
         'Standard': False,
@@ -63,9 +63,7 @@ def subscribe():
         'Student': False,
         'Senior': False,
         'Short term': False,
-        'Fast Track': False,
-        'Accessibility for Limited Mobility': False,
-        'Accessibility for Limited Orientation': False
+        'Fast Track': False
         }
         
         selected_apartment_types = request.form.getlist('apartment_types')
@@ -77,6 +75,11 @@ def subscribe():
             user_apartment_types["Youth Friendship"] = True
         else:
             user_apartment_types["Youth Friendship"] = False
+
+        #get information on limited mobility and orientation
+        mobility_and_orientation = request.form.getlist('accessibility_for_limited_mobility') + request.form.getlist('accessibility_for_limited_orientation')
+        user_apartment_types['Accessibility for Limited Mobility'] = 'True' if 'limited_mobility' in mobility_and_orientation else False
+        user_apartment_types['Accessibility for Limited Orientation'] = True if 'limited_orientation' in mobility_and_orientation else False
 
         #define and get form data for municipality table
         municipality_ids = {
