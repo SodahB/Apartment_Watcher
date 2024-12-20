@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apartment Selection</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    fieldset {
+      margin-bottom: 20px;
+    }
+    legend {
+      font-weight: bold;
+    }
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+    }
+    .slider-container {
+      margin: 10px 0;
+    }
+    .input-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    select, input[type="number"] {
+      width: 100px;
+      padding: 5px;
+    }
+
+    .success {
+      color: green;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Add event listeners for required fields to provide real-time validation feedback
+    const requiredFields = document.querySelectorAll('input[required], select[required], textarea[required]');
+    requiredFields.forEach(field => {
+      field.addEventListener('input', function () {
+        if (field.value.trim() === '') {
+          field.classList.add('error');
+        } else {
+          field.classList.remove('error');
+        }
+      });
+    });
+
+    // Combine all validation checks into a single form submit listener
+    document.querySelector('form').addEventListener('submit', function (event) {
+      let isValid = true;
+
+      // Rent Range Validation
+      const minRent = parseFloat(document.getElementById('min_rent').value);
+      const maxRent = parseFloat(document.getElementById('max_rent').value);
+      if (minRent >= maxRent) {
+        alert('Max rent must be greater than min rent.');
+        event.preventDefault();
+        isValid = false;
+      }
+
+      // Rooms and Size Validation
+      const minRooms = parseInt(document.getElementById('min_rooms').value);
+      const maxRooms = parseInt(document.getElementById('max_rooms').value);
+      const minSize = parseInt(document.getElementById('min_size').value);
+      const maxSize = parseInt(document.getElementById('max_size').value);
+      if (minRooms > maxRooms) {
+        alert('Max rooms must be greater than min rooms.');
+        event.preventDefault();
+        isValid = false;
+      }
+      if (minSize > maxSize) {
+        alert('Max size must be greater than min size.');
+        event.preventDefault();
+        isValid = false;
+      }
+
+      // Check required fields
+      requiredFields.forEach(field => {
+        if (field.value.trim() === '') {
+          field.classList.add('error');
+          isValid = false;
+        } else {
+          field.classList.remove('error');
+        }
+      });
+
+      // Municipality and Apartment Type Validation
+      const municipalityChecked = document.querySelectorAll('input[name="municipality"]:checked').length > 0;
+      const apartmentTypeChecked = document.querySelectorAll('input[name="apartment_types"]:checked').length > 0;
+      if (!municipalityChecked) {
+        alert('Please select at least one municipality.');
+        event.preventDefault();
+        isValid = false;
+      }
+      if (!apartmentTypeChecked) {
+        alert('Please select at least one apartment type.');
+        event.preventDefault();
+        isValid = false;
+      }
+
+      // Prevent submission if invalid
+      if (!isValid) {
+        event.preventDefault();
+        alert('Please fill out all required fields and correct any errors.');
+      } else {
+        // If everything is valid, show the success message
+        document.getElementById('success-message').style.display = 'block';
+      }
+    });
+
+    // Municipality and Apartment Type "Select All" checkbox logic
+    function toggleCheckboxes(source, checkboxName) {
+      const checkboxes = document.querySelectorAll(`input[name="${checkboxName}"]`);
+      checkboxes.forEach(function (checkbox) {
+        checkbox.checked = source.checked;
+      });
+    }
+
+    // Update "All" checkbox for municipalities or apartment types
+    function updateAllCheckbox(checkboxName, selectAllId) {
+      const checkboxes = document.querySelectorAll(`input[name="${checkboxName}"]`);
+      const selectAllCheckbox = document.getElementById(selectAllId);
+      selectAllCheckbox.checked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+    }
+    
+    // Event listeners for individual checkboxes
+    document.querySelectorAll('input[name="municipality"]').forEach(function (checkbox) {
+      checkbox.addEventListener('change', function () {
+        updateAllCheckbox('municipality', 'select_all_municipalities');
+      });
+    });
+    
+    document.querySelectorAll('input[name="apartment_types"]').forEach(function (checkbox) {
+      checkbox.addEventListener('change', function () {
+        updateAllCheckbox('apartment_types', 'select_all_apartments');
+      });
+    });
+    
+    // Attach toggle "Select All" functionality
+    document.getElementById('select_all_municipalities').addEventListener('change', function () {
+      toggleCheckboxes(this, 'municipality');
+    });
+    
+    document.getElementById('select_all_apartments').addEventListener('change', function () {
+      toggleCheckboxes(this, 'apartment_types');
+    });
+  });
+</script>
+
+
+</head>
+<body>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul>
+      {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+  <form action="/subscribe" method="POST">
+    <!-- Email Section -->
+    <fieldset>
+      <legend>*Email</legend>
+      <label>
+        <input type="email" name="email" placeholder="Enter your email" required>
+      </label>
+    </fieldset>
+
+    <!-- Rent Range Section -->
+    <fieldset>
+      <legend>*Rent Range</legend>
+      <div class="input-container">
+        <label for="min_rent">Min Rent:</label>
+        <input type="number" id="min_rent" name="min_rent" min="0" max="50000" step="500" value="0" required>
+        <label for="max_rent">Max Rent:</label>
+        <input type="number" id="max_rent" name="max_rent" min="0" max="50000" step="500" value="10000" required>
+      </div>
+    </fieldset>
+
+
+    <!-- Rooms Section -->
+    <fieldset>
+        <legend>*Rooms</legend>
+        <div class="input-container">
+          <label for="min_rooms">Min Rooms:</label>
+          <input type="number" id="min_rooms" name="min_rooms" min="1" max="10" step="1" value="1" required>
+          <label for="max_rooms">Max Rooms:</label>
+          <input type="number" id="max_rooms" name="max_rooms" min="1" max="10" step="1" value="1" required>
+        </div>
+      </fieldset>
+
+
+    <!-- Size Section -->
+    <fieldset>
+        <legend>Size (m²)</legend>
+        <div class="input-container">
+          <label for="min_size">Min Size:</label>
+          <input type="number" id="min_size" name="min_size" min="0" max="200" step="5" value="0" required>
+          <label for="max_size">Max Size:</label>
+          <input type="number" id="max_size" name="max_size" min="0" max="200" step="5" value="200" required>
+        </div>
+      </fieldset>
+
+      <!-- Balcony Section -->
+      <fieldset>
+        <legend>Balcony (optional)</legend>
+        <label>
+          <input type="checkbox" name="balcony" value="balcony_required"> Balcony required
+        </label>
+      </fieldset>
+
+      <!-- Accessibility and Floor Preferences Section -->
+      <fieldset>
+        <legend>*Accessibility and Floor Preferences</legend>
+        
+        <!-- Accessibility and Floor Preferences -->
+        <label>
+          <input type="radio" name="accessibility_and_floor" value="any_floor" required> Any floor
+        </label><br>
+        <label>
+          <input type="radio" name="accessibility_and_floor" value="any_floor_except_bottom" required> Any floor except bottom
+        </label><br>
+        <label>
+          <input type="radio" name="accessibility_and_floor" value="bottom_floor_required" required> Bottom floor
+        </label><br>
+        <label>
+          <input type="radio" name="accessibility_and_floor" value="bottom_or_elevator_required" required> Bottom floor or elevator required
+        </label><br>
+        <label>
+          <input type="radio" name="accessibility_and_floor" value="elevator_required" required> Elevator required
+        </label><br>
+      </fieldset>
+      
+
+      <!-- Apartment Types Section -->
+      <fieldset>
+          <legend>*Apartment Types</legend>
+          <!-- 'Any' checkbox to select all apartment types -->
+          <label>
+            <input type="checkbox" id="select_all_apartments" onchange="toggleApartmentCheckboxes(this)"> Any
+          </label><br>
+        
+          {% for type in apartment_types %}
+            <label>
+              <input type="checkbox" name="apartment_types" value="{{ type }}" class="apartment-type" onchange="updateAllCheckbox()"> {{ type }}
+            </label><br>
+          {% endfor %}
+        </fieldset>
+
+    <!-- Municipality Section -->
+    <fieldset>
+        <legend>*Municipality</legend>
+        <label>
+          <input type="checkbox" id="select_all_municipalities" onchange="toggleMunicipalityCheckboxes(this)"> All
+        </label><br>
+        {% for municipality in municipalities %}
+          <label>
+            <input type="checkbox" name="municipality" value="{{ municipality }}"> {{ municipality }}
+          </label><br>
+        {% endfor %}
+      </fieldset>
+
+  
+  
+
+      <!-- Submit Button -->
+      <button type="submit">Submit</button>
+    </form>
+<!-- Success Message (hidden initially) -->
+    <div id="success-message" style="display:none; color: green; margin-top: 20px;">
+      <strong>Thank you!</strong> Your subscription is successful.
+    </div>
+  </body>
+  </html>
