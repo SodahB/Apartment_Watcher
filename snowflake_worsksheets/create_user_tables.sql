@@ -72,7 +72,6 @@ CREATE TABLE user_municipality (
 CREATE TABLE user_apartment_type_filters (
   id INT AUTOINCREMENT PRIMARY KEY,
   user_id INT,
-  new_development BOOLEAN DEFAULT FALSE NOT NULL,
   standard_lease BOOLEAN DEFAULT FALSE NOT NULL,
   youth BOOLEAN DEFAULT FALSE NOT NULL,
   student BOOLEAN DEFAULT FALSE NOT NULL,
