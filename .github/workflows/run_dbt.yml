@@ -25,12 +25,12 @@ jobs:
 
       - name: Set up DBT profiles
         run: |
-          cd dbt_code
           mkdir -p ~/.dbt
           echo "${{ secrets.DBT_PROFILES_YML }}" > ~/.dbt/profiles.yml
 
       # Step 5: Debug and run dbt with the specified profiles.yml file
       - name: Run DBT
         run: |
+          cd dbt_code
           dbt debug
           dbt run --profiles-dir ~/.dbt 
