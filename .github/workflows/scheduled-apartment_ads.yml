@@ -1,9 +1,9 @@
-name: Run apartmentads.py-script every day at 13.02
+name: Run apartmentads.py-script
 
 on:
   schedule:
-    # Run every day at 13:02 Swedish Time
-    - cron: '2 12 * * *'  
+    # Run every day at 00:02 Swedish Time
+    - cron: '2 23 * * *'  
 
   workflow_dispatch:
 
