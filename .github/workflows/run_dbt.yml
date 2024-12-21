@@ -1,0 +1,36 @@
+name: DBT Run Workflow
+
+on:
+  schedule:
+    # Run every day at 00:10 Swedish Time
+    - cron: '10 23 * * *'  
+
+  workflow_dispatch:
+jobs:
+  dbt_run:
+    runs-on: ubuntu-latest 
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install dbt
+          pip install -r requirements.txt
+
+      - name: Set up DBT profiles
+        run: |
+          mkdir -p ~/.dbt
+          echo "${{ secrets.DBT_PROFILES_YML }}" > ~/.dbt/profiles.yml
+
+      # Step 5: Debug and run dbt with the specified profiles.yml file
+      - name: Run DBT
+        run: |
+          dbt debug
+          dbt run --profiles-dir ~/.dbt 
