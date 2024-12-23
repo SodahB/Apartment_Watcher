@@ -10,7 +10,7 @@ def send_email(email, html_content):
     HOST = "smtp.gmail.com"
     PORT = 587
 
-    FROM_EMAIL = "ApartmentWatcher@gmail.com"
+    FROM_EMAIL = os.getenv("FROM_EMAIL")
     TO_EMAIL = email
     PASSWORD = os.getenv("APP_PASSWORD")
 
