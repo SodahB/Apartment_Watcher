@@ -33,6 +33,7 @@ jobs:
           database: ${{ secrets.database }}
           warehouse: ${{ secrets.warehouse }}
           APP_PASSWORD: ${{ secrets.app_password }}
+          FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
         run: |
           cd email_functions_for_workflow
           python compose_email_workflow.py
