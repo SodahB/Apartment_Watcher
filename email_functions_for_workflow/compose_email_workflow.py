@@ -70,22 +70,22 @@ def find_users():
 
                 #create where-clauses for dynamic choices in accessibility (floor and elevator)
                 if user_filter_dict['any_floor']:
-                    user_filter_dict['where_clause'] = "1=1"
+                    user_filter_dict['floor_condition'] = "1=1"
 
                 elif user_filter_dict['any_floor_except_bottom']:
-                    user_filter_dict['where_clause'] = ("ap.floor > 1")
+                    user_filter_dict['floor_condition'] = ("ap.floor > 1")
 
                 elif user_filter_dict['elevator_required']:
-                    user_filter_dict['where_clause'] = ("ap.elevator = 1")
+                    user_filter_dict['floor_condition'] = ("ap.elevator = 1")
 
                 elif user_filter_dict['bottom_floor_required']:
-                    user_filter_dict['where_clause'] = ("ap.floor = 1")
+                    user_filter_dict['floor_condition'] = ("ap.floor = 1")
 
                 elif user_filter_dict['bottom_or_elevator_required']:
-                    user_filter_dict['where_clause'] = ("(ap.floor = 1 OR ap.elevator = 1)")
+                    user_filter_dict['floor_condition'] = ("(ap.floor = 1 OR ap.elevator = 1)")
                 #fallback clause
                 else:
-                    user_filter_dict['where_clause'] = "2=2"
+                    user_filter_dict['floor_condition'] = "2=2"
 
                 #accessibility clause for apartment types
                 if user_filter_dict['limited_mobility']:
@@ -108,6 +108,8 @@ def find_users():
                 apartment_type = []
                 if user_filter_dict['youth']:
                     apartment_type.append('is_youth')
+                if user_filter_dict['youth_friendship']:
+                    apartment_type.append('is_youth_friendship')
                 if user_filter_dict['student']:
                     apartment_type.append('is_student')
                 if user_filter_dict['senior']:
@@ -120,12 +122,19 @@ def find_users():
                 else:
                     apartment_type.append("TRUE")
                 
-                #standard lease is a condition where all other types are false
                 if 'is_standard' in apartment_type:
-                    apartment_type_condition = "is_standard = TRUE AND " + " AND ".join([f"{type} = FALSE" for type in apartment_type if type != 'is_standard'])
+                    # Creating condition for 'standard' apartments where all other apartment types are false
+                    other_types = ['is_youth', 'is_student', 'is_senior', 'is_short_term', 'is_fast_track', 'is_youth_friendship']
+                    standard_condition = " AND ".join([f"{type} = FALSE" for type in other_types])
+
+                    # Create condition for other apartment types, joined by OR
+                    specified_types_condition = " OR ".join([f"{type} = TRUE" for type in apartment_type if type != 'is_standard'])
+
+                    # Combinining the two conditions
+                    apartment_type_condition = f"(({standard_condition}) OR ({specified_types_condition}))"
                 else:
-                #join clauses with OR
-                    apartment_type_condition = " OR ".join([f"{type} = TRUE" for type in apartment_type])
+                # combining apartment types if is_standard is not in the lsit
+                    apartment_type_condition = "(" + " OR ".join([f"({type} = TRUE)" for type in apartment_type]) + ")"
 
                 user_filter_dict['apartment_type_condition'] = apartment_type_condition
 
@@ -152,7 +161,7 @@ def find_users():
 def search_for_filtered_ads(conn, email, user_filter_dict):
     try:
         cursor = conn.cursor()
-        where_clause = user_filter_dict['where_clause']
+        floor_condition = user_filter_dict['floor_condition']
         balcony_condition = user_filter_dict['balcony_condition']
         apartment_type_condition = user_filter_dict['apartment_type_condition']
         municipality_condition = user_filter_dict['municipality_condition']
@@ -172,16 +181,16 @@ def search_for_filtered_ads(conn, email, user_filter_dict):
         AND ap.rooms <= %s
         AND ap.floor_area >= %s
         AND ap.floor_area <= %s
-        AND {where_clause}
+        AND {floor_condition}
         AND {balcony_condition}
         AND {apartment_type_condition}
         AND {orientation_condition}
         AND {mobility_condition}
         AND {municipality_condition}
-        AND ad.published >= CURRENT_TIMESTAMP - INTERVAL '1 day'
+        AND ad.published >= DATE_TRUNC('day', CURRENT_TIMESTAMP) - INTERVAL '1 day'
         """
 
-        formatted_query = query.format(where_clause=where_clause, balcony_condition=balcony_condition, apartment_type_condition= apartment_type_condition, \
+        formatted_query = query.format(floor_condition=floor_condition, balcony_condition=balcony_condition, apartment_type_condition= apartment_type_condition, \
 mobility_condition= mobility_condition, orientation_condition= orientation_condition, municipality_condition = municipality_condition)
         
         params = (
@@ -192,7 +201,6 @@ mobility_condition= mobility_condition, orientation_condition= orientation_condi
             user_filter_dict['min_size'],
             user_filter_dict['max_size'],
         )
-
         cursor.execute(formatted_query, params)
         results = cursor.fetchall()
         compose_filtered_ads(results, email)
@@ -202,53 +210,52 @@ mobility_condition= mobility_condition, orientation_condition= orientation_condi
         cursor.close()
 
 def compose_filtered_ads(results, email):
-    print(email)
-    try:
-        if not email:
-            raise ValueError("Email is None or empty")
-        with open("template.html", "r", encoding="utf-8") as file:
-            template = file.read()
-        html_rows = ""
-        for apartment in results:
-            special_categories = []
-            accessibility = []
-            if apartment[13]: special_categories.append("Youth")
-            if apartment[14]: special_categories.append("Student")
-            if apartment[15]: special_categories.append("Senior")
-            if apartment[16]: special_categories.append("Short Term")
-            if apartment[17]: special_categories.append("Youth Friendship")
-            if apartment[18]: special_categories.append("Fast Track")
-            if apartment[19]: accessibility.append("Limited Mobility Accessibility")
-            if apartment[20]: accessibility.append("Limited Orientation Accessibility")
+    if results == []:
+        print('No new ads for current user.')
+    else:
+        try:
+            if not email:
+                raise ValueError("Email is None or empty")
+            with open("template.html", "r", encoding="utf-8") as file:
+                template = file.read()
+            html_rows = ""
+            for apartment in results:
+                special_categories = []
+                accessibility = []
+                if apartment[13]: special_categories.append("Youth")
+                if apartment[14]: special_categories.append("Student")
+                if apartment[15]: special_categories.append("Senior")
+                if apartment[16]: special_categories.append("Short Term")
+                if apartment[17]: special_categories.append("Youth Friendship")
+                if apartment[18]: special_categories.append("Fast Track")
+                if apartment[19]: accessibility.append("For Limited Mobility")
+                if apartment[20]: accessibility.append("For Limited Orientation")
+                
+                row = f"""
+                <tr>
+                    <td>{apartment[24]}</td>
+                    <td>{apartment[11]} SEK/month</td>
+                    <td>{apartment[2]}</td>
+                    <td>{apartment[3]} m²</td>
+                    <td>{apartment[22]}</td>
+                    <td>{apartment[23]}</td>
+                    <td>{", ".join(special_categories) if special_categories else "Standard"}</td>
+                    <td>{", ".join(accessibility) if accessibility else "None"}</td>
+                    <td>{apartment[31]}</td>
+                    <td>{apartment[32]}</td>
+                    <td><a href="https://bostad.stockholm.se{apartment[29]}">View Details</a></td>
+                </tr>
+                """
+                html_rows += row
+            final_html = template.replace("{rows}", html_rows)
+
+            if not final_html:
+                raise ValueError("Final HTML content is None or empty")
             
-            row = f"""
-            <tr>
-                <td>{apartment[24]}</td>
-                <td>{apartment[11]} SEK/month</td>
-                <td>{apartment[2]}</td>
-                <td>{apartment[1]}</td>
-                <td>{apartment[3]} m²</td>
-                <td>{apartment[22]}</td>
-                <td>{apartment[23]}</td>
-                <td>{"Yes" if apartment[4] else "No"}</td>
-                <td>{", ".join(special_categories) if special_categories else "Standard"}</td>
-                <td>{", ".join(accessibility) if accessibility else "None"}</td>
-                <td>{apartment[30]}</td>
-                <td>{apartment[31]}</td>
-                <td>{apartment[32]}</td>
-                <td><a href="https://bostad.stockholm.se{apartment[29]}">View Details</a></td>
-            </tr>
-            """
-            html_rows += row
-        final_html = template.replace("{rows}", html_rows)
+            send_email(email, final_html)
 
-        if not final_html:
-            raise ValueError("Final HTML content is None or empty")
-        
-        send_email(email, final_html)
-
-    except Exception as e:
-        print(f"Error occurred while composing html: {e}")
+        except Exception as e:
+            print(f"Error occurred while composing html: {e}")
 
 
 if __name__ == '__main__':
