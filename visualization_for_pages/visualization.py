@@ -149,7 +149,7 @@ final_html = f"""
 """
 
 # Save the Final HTML File
-with open('../docs/dashboard.html', 'w', encoding='utf-8') as f:
+with open('../docs/index.html', 'w', encoding='utf-8') as f:
     f.write(final_html)
 
 
