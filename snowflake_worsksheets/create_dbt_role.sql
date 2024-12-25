@@ -50,38 +50,8 @@ SELECT * FROM warehouse.test;
 DROP TABLE warehouse.test;
 
 
---- #### MARTS LAYER GRANTS
-
-USE ROLE SECURITYADMIN;
-GRANT USAGE ON SCHEMA apartment_watcher.marts TO ROLE DBT_role;
-GRANT CREATE TABLE ON SCHEMA apartment_watcher.marts TO ROLE DBT_role;
-GRANT CREATE VIEW ON SCHEMA apartment_watcher.marts TO ROLE DBT_role;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA apartment_watcher.marts TO ROLE DBT_role;
-GRANT SELECT, INSERT, UPDATE, DELETE ON FUTURE TABLES IN SCHEMA apartment_watcher.marts TO ROLE DBT_role;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL VIEWS IN SCHEMA apartment_watcher.marts TO ROLE DBT_role;
-GRANT SELECT, INSERT, UPDATE, DELETE ON FUTURE VIEWS IN SCHEMA apartment_watcher.marts TO ROLE DBT_role;
-GRANT TRUNCATE ON ALL TABLES IN SCHEMA apartment_watcher.marts TO ROLE DBT_role;
-GRANT TRUNCATE ON FUTURE TABLES IN SCHEMA apartment_watcher.marts TO ROLE DBT_role;
-
---- #### TESTING MARTS
-USE ROLE DBT_role;
-
-USE WAREHOUSE COMPUTE_WH;
-USE DATABASE apartment_watcher;
-CREATE TABLE IF NOT EXISTS Marts.test(
-    test INTEGER PRIMARY KEY
-);
-
-SHOW TABLES IN Marts;
-INSERT INTO Marts.test (test) 
-VALUES(2);
-
-SELECT * FROM Marts.test;
-DROP TABLE Marts.test;
-
-
 --- #### SHOW GRANTS
+
 SHOW GRANTS TO ROLE DBT_role;
 SHOW GRANTS ON SCHEMA apartment_watcher.STAGING;
 SHOW GRANTS ON SCHEMA apartment_watcher.WAREHOUSE;
-SHOW GRANTS ON SCHEMA apartment_watcher.MARTS;
