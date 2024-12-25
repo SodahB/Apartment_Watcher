@@ -51,7 +51,7 @@ DROP TABLE warehouse.test;
 
 
 --- #### SHOW GRANTS
+
 SHOW GRANTS TO ROLE DBT_role;
 SHOW GRANTS ON SCHEMA apartment_watcher.STAGING;
 SHOW GRANTS ON SCHEMA apartment_watcher.WAREHOUSE;
-SHOW GRANTS ON SCHEMA apartment_watcher.MARTS;
