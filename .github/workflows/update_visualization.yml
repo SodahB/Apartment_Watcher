@@ -1,0 +1,37 @@
+name: Daily run script to update deployed visualization
+
+on:
+  schedule:
+    # Run every day at 00:25 Swedish Time
+    - cron: '25 23 * * *'  
+
+  workflow_dispatch:
+    
+jobs:
+  run_update_visualization:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run compose_email.py
+        env:
+          username: ${{ secrets.username }}
+          password: ${{ secrets.password }}
+          host: ${{ secrets.host }}
+          database: ${{ secrets.database }}
+          warehouse: ${{ secrets.warehouse }}
+        run: |
+          cd visualization_for_pages
+          python visualization.py
