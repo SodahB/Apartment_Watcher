@@ -36,7 +36,7 @@ def get_sf_connection():
 
 
 #function to query all data needed for the visualization
-def find_users():
+def query_warehouse():
     try:
         conn = get_sf_connection()
         cursor = conn.cursor()
@@ -59,7 +59,7 @@ def find_users():
 def update_visualization():
     try:
         # --- Load data ---
-        data = find_users()
+        data =  query_warehouse
 
         # --- Create Folium Map ---
         m = folium.Map(location=[59.3293, 18.0686], zoom_start=6, tiles="OpenStreetMap")
