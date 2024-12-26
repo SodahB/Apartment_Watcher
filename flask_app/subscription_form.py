@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, flash
-from .update_subscription import update_subscription
+from update_subscription import update_subscription
 from dotenv import load_dotenv
 import os
 
