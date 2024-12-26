@@ -39,8 +39,8 @@ jobs:
 
       - name: Commit and push index.html to the repository
         run: |
-          git config --global user.name "Your Name"
-          git config --global user.email "your-email@example.com"
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add ../docs/index.html
           git commit -m "Update index.html"
           git push origin main
