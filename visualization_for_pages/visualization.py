@@ -59,7 +59,10 @@ def query_warehouse():
 def update_visualization():
     try:
         # --- Load data ---
-        data =  query_warehouse
+        data =  query_warehouse()
+
+        if data is None or data.empty:
+            raise ValueError("No data available to visualize.")
 
         # --- Create Folium Map ---
         m = folium.Map(location=[59.3293, 18.0686], zoom_start=6, tiles="OpenStreetMap")
