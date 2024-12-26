@@ -4,7 +4,7 @@ USE DATABASE APARTMENT_WATCHER;
 USE SCHEMA USERS;
 
 -- Create user table
-CREATE TABLE user (
+CREATE TABLE IF NOT EXISTS user (
   id INT AUTOINCREMENT PRIMARY KEY,
   email VARCHAR(255) NOT NULL,
   min_rent DECIMAL(10, 2) NOT NULL,
@@ -23,11 +23,12 @@ CREATE TABLE user (
 );
 
 -- Create municipality table
-CREATE TABLE municipality (
+CREATE TABLE IF NOT EXISTS municipality (
   id INT AUTOINCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL UNIQUE
 );
 
+-- Insert municipalities into table
 INSERT INTO municipality (name) 
 VALUES 
 ('Botkyrka'), 
@@ -60,7 +61,7 @@ VALUES
 
 
 -- Create user_municipality table
-CREATE TABLE user_municipality (
+CREATE TABLE IF NOT EXISTS user_municipality (
   user_id INT,
   municipality_id INT,
   PRIMARY KEY (user_id, municipality_id),
@@ -69,7 +70,7 @@ CREATE TABLE user_municipality (
 );
 
 -- Create user_apartment_type_filters table
-CREATE TABLE user_apartment_type_filters (
+CREATE TABLE IF NOT EXISTS user_apartment_type_filters (
   id INT AUTOINCREMENT PRIMARY KEY,
   user_id INT,
   standard_lease BOOLEAN DEFAULT FALSE NOT NULL,
