@@ -8,7 +8,7 @@ Participants
 Jasmin Folkesson – Student DE23
 Sodah Bitar – Student DE23
 Kokchun Giang (external) – Supervisor for the thesis project
-Stockholm Housing Agency’s Customer Service (external) – For inquiries about the website
+Stockholms Bostadsförmedling Customer Service (external) – For inquiries about the website
 
 The Business Idea
 The service is aimed at individuals looking for an apartment in Stockholm for the first time who cannot afford to buy one and therefore rely on Stockholm Housing Agency. A first apartment with a primary rental contract can be the gateway to long-term housing security, making the choice crucial. The service is also useful for individuals currently living in apartments they can no longer stay in due to changed life circumstances, such as newly developed disabilities. These individuals might lack the time, ability, or technical knowledge to search for listings daily, and this service simplifies and customizes the process for them. Historical apartment statistics also provide users with broad insights into the market, allowing them to make well-informed decisions before using their valuable queue points to secure a contract.
