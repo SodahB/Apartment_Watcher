@@ -1,9 +1,9 @@
 name: Run Compose Email
 
 on:
-  schedule:
+  #schedule:
     # Run every day at 13:20 Swedish Time
-    - cron: '20 12 * * *'  
+    #- cron: '20 12 * * *'  
 
   workflow_dispatch:
     
