@@ -1,9 +1,9 @@
 name: Daily run script to update deployed visualization
 
 on:
-  schedule:
+  #schedule:
     # Run every day at 00:25 Swedish Time
-    - cron: '25 23 * * *'  
+  #  - cron: '25 23 * * *'  
 
   workflow_dispatch:
     
